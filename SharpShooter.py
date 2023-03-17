@@ -439,9 +439,9 @@ End Sub"""
                     sc = self.read_file(args.shellcode_file)
                     shellcode.append(sc)
 
-                    shellcode = "\n".join(shellcode)
+                    shellcode = b"\n".join(shellcode)
 
-                    shellcode_final = shellcode_template.replace("%SHELLCODE%", shellcode)
+                    shellcode_final = shellcode_template.replace(b"%SHELLCODE%", shellcode)
                     shellcode_gzip = self.gzip_str(shellcode_final)
 
                 elif (args.stageless or stageless_payload is True):
@@ -593,7 +593,7 @@ End Sub"""
             outputfile_shellcode = outputfile + ".payload"
             with open("output/" + outputfile_shellcode, 'w') as f:
                 gzip_encoded = base64.b64encode(shellcode_gzip.getvalue())
-                f.write(gzip_encoded)
+                f.write(gzip_encoded.decode('utf-8'))
                 f.close()
                 print("\033[1;34m[*]\033[0;0m Written shellcode payload to output/%s" % outputfile_shellcode)
 
