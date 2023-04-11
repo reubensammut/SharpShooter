@@ -59,6 +59,6 @@ e=1
     if "vb" in file_type or "hta" in file_type:
         amsibypass = vbs_bypass_1
     else:
-        amsibypass = js_bypass_1
+        amsibypass = js_bypass_new
 
     return amsibypass
