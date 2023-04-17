@@ -290,10 +290,7 @@ End Sub"""
                 raise Exception
 
             if(payload_type == 1):
-                if(args.comtechnique):
-                    template_body = self.read_file(template_base + "js")
-                else:
-                    template_body = self.read_file(template_base + "vbs")
+                template_body = self.read_file(template_base + "js")
                 file_type = "hta"
             elif(payload_type == 2):
                 template_body = self.read_file(template_base + "js")
@@ -541,7 +538,7 @@ End Sub"""
             payload = payload.replace("%KEY%", "'%s'" % (key))
             payload_minified = jsmin(payload)
         elif("hta" in file_type):
-            harness = self.read_file(BASE + "templates/harness.hta")
+            harness = self.read_file(BASE + "templates/harness.hta").decode(encoding='UTF-8')
             payload = harness.replace("%B64PAYLOAD%", payload_encoded.decode(encoding='utf-8'))
             payload = payload.replace("%KEY%", "'%s'" % (key))
             payload_minified = jsmin(payload)
